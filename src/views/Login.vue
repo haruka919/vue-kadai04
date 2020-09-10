@@ -12,7 +12,7 @@
           <div class="field-body">
             <div class="field">
               <p class="control">
-                <input class="input" type="email" placeholder="Email">
+                <input class="input" type="email" placeholder="Email" v-model="email">
               </p>
             </div>
           </div>
@@ -25,13 +25,13 @@
           <div class="field-body">
             <div class="field">
               <p class="control">
-                <input class="input" type="pass" placeholder="Password">
+                <input class="input" type="password" placeholder="Password" v-model="password">
               </p>
             </div>
           </div>
         </div>
 
-        <button class="button is-link is-outlined">ログイン</button>
+        <button class="button is-link is-outlined" @click="login">ログイン</button>
         <p class="mb-4"><a href="/register">新規登録はこちらから</a></p>
 
         <p class="is-size-7">Copyright©️2019 inc.All rights reserved.</p>
@@ -39,3 +39,25 @@
     </div>
   </div>
 </template>
+<script>
+import firebase from 'firebase'
+export default {
+  data () {
+    return {
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    login () {
+      firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+        .then(() => {
+          this.$router.push('/')
+        })
+        .catch(error => {
+          alert(error.message)
+        })
+    }
+  }
+}
+</script>
