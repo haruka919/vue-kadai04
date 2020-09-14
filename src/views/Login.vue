@@ -40,7 +40,6 @@
   </div>
 </template>
 <script>
-import firebase from 'firebase'
 export default {
   data () {
     return {
@@ -50,13 +49,10 @@ export default {
   },
   methods: {
     login () {
-      firebase.auth().signInWithEmailAndPassword(this.email, this.password)
-        .then(() => {
-          this.$router.push('/')
-        })
-        .catch(error => {
-          alert(error.message)
-        })
+      this.$store.dispatch('login', {
+        email: this.email,
+        password: this.password
+      })
     }
   }
 }
