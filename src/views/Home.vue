@@ -3,7 +3,7 @@
     <nav class="navbar is-transparent">
       <div id="navbarExampleTransparentExample" class="navbar-menu">
         <div class="navbar-start">
-          <p class="is-size-5">さんようこそ！！</p>
+          <p class="is-size-5">{{ displayName }}さんようこそ！！</p>
         </div>
         <div class="navbar-end">
           <div class="navbar-item">
@@ -58,7 +58,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
-  name: 'Register'
+  name: 'Register',
+  computed: mapGetters(['displayName'])
 }
 </script>

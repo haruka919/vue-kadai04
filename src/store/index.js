@@ -9,14 +9,18 @@ export default new Vuex.Store({
     user: null,
     isAuthenticated: false,
   },
-  getters: {},
+  getters: {
+    displayName(state) {
+      return state.user === null ? null : state.user.user.displayName;
+    }
+  },
   mutations: {
     setUser(state, payload) {
       state.user = payload;
     },
     setIsAuthenticated(state, payload) {
       state.isAuthenticated = payload;
-    }
+    },
   },
   actions: {
     login({ commit }, { email, password }) {
@@ -25,7 +29,7 @@ export default new Vuex.Store({
         .signInWithEmailAndPassword(email, password)
         .then((user) => {
           commit('setUser', user);
-          commit('setIsAuthenticated', true)
+          commit('setIsAuthenticated', true);
           router.push('/');
         })
         .catch(() => {
