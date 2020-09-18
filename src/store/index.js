@@ -1,8 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 import firebase from 'firebase';
-import router from '@/router'
-Vue.use(Vuex)
+import router from '@/router';
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -23,6 +23,30 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    register({ commit }, authData) {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(authData.email, authData.password)
+        .then((user) => {
+          user.user.updateProfile({
+            displayName: authData.displayName,
+          });
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.user.uid)
+            .set({
+              wallet: 500,
+            });
+          commit('setUser', user);
+          commit('setIsAuthenticated', true);
+          router.push('/');
+        })
+        .catch(() => {
+          commit('setUser', null);
+          commit('setIsAuthenticated', false);
+        });
+    },
     login({ commit }, { email, password }) {
       firebase
         .auth()
