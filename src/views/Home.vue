@@ -8,7 +8,7 @@
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="field is-grouped">
-              <p class="is-size-5">残高：</p>
+              <p class="is-size-5">残高：{{ wallet }}</p>
               <p class="control">
                 <a class="button is-primary" href="/logout">ログアウト</a>
               </p>
@@ -61,6 +61,6 @@
 import { mapGetters } from 'vuex'
 export default {
   name: 'Register',
-  computed: mapGetters(['displayName'])
+  computed: mapGetters(['displayName', 'wallet'])
 }
 </script>

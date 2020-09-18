@@ -6,24 +6,27 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: null,
-    isAuthenticated: false,
+    loginUser: {
+      name: null,
+      wallet: null,
+    },
   },
   getters: {
-    displayName(state) {
-      return state.user === null ? null : state.user.user.displayName;
-    }
+    displayName: (state) =>
+      state.loginUser.name ? state.loginUser.name : null,
+    wallet: (state) =>
+      state.loginUser.wallet ? state.loginUser.wallet.wallet : null,
   },
   mutations: {
-    setUser(state, payload) {
-      state.user = payload;
+    setLoginUser(state, payload) {
+      state.loginUser.name = payload.name;
     },
-    setIsAuthenticated(state, payload) {
-      state.isAuthenticated = payload;
+    setWallet(state, payload) {
+      state.loginUser.wallet = payload;
     },
   },
   actions: {
-    register({ commit }, authData) {
+    register({ dispatch }, authData) {
       firebase
         .auth()
         .createUserWithEmailAndPassword(authData.email, authData.password)
@@ -38,28 +41,40 @@ export default new Vuex.Store({
             .set({
               wallet: 500,
             });
-          commit('setUser', user);
-          commit('setIsAuthenticated', true);
+          dispatch('setLoginUser');
           router.push('/');
         })
-        .catch(() => {
-          commit('setUser', null);
-          commit('setIsAuthenticated', false);
+        .catch((error) => {
+          alert(error.message);
         });
     },
-    login({ commit }, { email, password }) {
+    login({ dispatch }, { email, password }) {
       firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then((user) => {
-          commit('setUser', user);
-          commit('setIsAuthenticated', true);
+        .then(() => {
+          dispatch('setLoginUser');
           router.push('/');
         })
-        .catch(() => {
-          commit('setUser', null);
-          commit('setIsAuthenticated', false);
+        .catch((error) => {
+          alert(error.message);
         });
+    },
+    setLoginUser({ commit }) {
+      firebase.auth().onAuthStateChanged(function(user) {
+        console.log(user);
+        if (user) {
+          commit('setLoginUser', { name: user.displayName });
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.uid)
+            .get()
+            .then((doc) => {
+              commit('setWallet', doc.data());
+            });
+        }
+      });
     },
   },
 });
