@@ -48,10 +48,10 @@ export default new Vuex.Store({
           alert(error.message);
         });
     },
-    login({ dispatch }, { email, password }) {
+    login({ dispatch }, authData) {
       firebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
+        .signInWithEmailAndPassword(authData.email, authData.password)
         .then(() => {
           dispatch('setLoginUser');
           router.push('/');
@@ -61,8 +61,7 @@ export default new Vuex.Store({
         });
     },
     setLoginUser({ commit }) {
-      firebase.auth().onAuthStateChanged(function(user) {
-        console.log(user);
+      firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           commit('setLoginUser', { name: user.displayName });
           firebase
