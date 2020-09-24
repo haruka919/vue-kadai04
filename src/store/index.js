@@ -26,31 +26,31 @@ export default new Vuex.Store({
     },
   },
   actions: {
-register({ dispatch }, authData) {
-  firebase
-    .auth()
-    .createUserWithEmailAndPassword(authData.email, authData.password)
-    .then((user) => {
-      user.user
-        .updateProfile({
-          displayName: authData.displayName,
-        })
-        .then(() => {
-          dispatch('setLoginUser');
-          router.push('/');
-        });
+    register({ dispatch }, authData) {
       firebase
-        .firestore()
-        .collection('users')
-        .doc(user.user.uid)
-        .set({
-          wallet: 500,
+        .auth()
+        .createUserWithEmailAndPassword(authData.email, authData.password)
+        .then((user) => {
+          user.user
+            .updateProfile({
+              displayName: authData.displayName,
+            })
+            .then(() => {
+              dispatch('setLoginUser');
+              router.push('/');
+            });
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.user.uid)
+            .set({
+              wallet: 500,
+            });
+        })
+        .catch((error) => {
+          alert(error.message);
         });
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-},
+    },
     login({ dispatch }, authData) {
       firebase
         .auth()
@@ -74,7 +74,7 @@ register({ dispatch }, authData) {
             .get()
             .then((doc) => {
               commit('setWallet', doc.data());
-            });
+              });
         }
       });
     },
