@@ -26,28 +26,31 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    register({ dispatch }, authData) {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(authData.email, authData.password)
-        .then((user) => {
-          user.user.updateProfile({
-            displayName: authData.displayName,
-          });
-          firebase
-            .firestore()
-            .collection('users')
-            .doc(user.user.uid)
-            .set({
-              wallet: 500,
-            });
+register({ dispatch }, authData) {
+  firebase
+    .auth()
+    .createUserWithEmailAndPassword(authData.email, authData.password)
+    .then((user) => {
+      user.user
+        .updateProfile({
+          displayName: authData.displayName,
+        })
+        .then(() => {
           dispatch('setLoginUser');
           router.push('/');
-        })
-        .catch((error) => {
-          alert(error.message);
         });
-    },
+      firebase
+        .firestore()
+        .collection('users')
+        .doc(user.user.uid)
+        .set({
+          wallet: 500,
+        });
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+},
     login({ dispatch }, authData) {
       firebase
         .auth()
