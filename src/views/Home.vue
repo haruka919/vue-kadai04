@@ -3,12 +3,12 @@
     <nav class="navbar is-transparent">
       <div id="navbarExampleTransparentExample" class="navbar-menu">
         <div class="navbar-start">
-          <p class="is-size-5">さんようこそ！！</p>
+          <p class="is-size-5">{{ displayName }}さんようこそ！！</p>
         </div>
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="field is-grouped">
-              <p class="is-size-5">残高：</p>
+              <p class="is-size-5">残高：{{ wallet }}</p>
               <p class="control">
                 <a class="button is-primary" href="/logout">ログアウト</a>
               </p>
@@ -58,7 +58,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
-  name: 'Register'
+  name: 'Register',
+  computed: mapGetters(['displayName', 'wallet'])
 }
 </script>

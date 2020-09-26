@@ -54,7 +54,6 @@
 </template>
 
 <script>
-import firebase from 'firebase'
 export default {
   data () {
     return {
@@ -65,17 +64,12 @@ export default {
   },
   methods: {
     // 新規ユーザーを登録
-    register () {
-      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-        .then((response) => {
-          response.user.updateProfile({
-            displayName: this.displayName
-          })
-          this.$router.push('/')
-        })
-        .catch(error => {
-          alert(error.message)
-        })
+    register() {
+      this.$store.dispatch('register', {
+        email: this.email,
+        password: this.password,
+        displayName: this.displayName
+      })
     }
   }
 }

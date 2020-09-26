@@ -1,37 +1,84 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 import firebase from 'firebase';
-import router from '@/router'
-Vue.use(Vuex)
+import router from '@/router';
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    user: null,
-    isAuthenticated: false,
-  },
-  getters: {},
-  mutations: {
-    setUser(state, payload) {
-      state.user = payload;
+    loginUser: {
+      name: null,
+      wallet: null,
     },
-    setIsAuthenticated(state, payload) {
-      state.isAuthenticated = payload;
-    }
+  },
+  getters: {
+    displayName: (state) =>
+      state.loginUser.name ? state.loginUser.name : null,
+    wallet: (state) =>
+      state.loginUser.wallet ? state.loginUser.wallet.wallet : null,
+  },
+  mutations: {
+    setLoginUser(state, payload) {
+      state.loginUser.name = payload.name;
+    },
+    setWallet(state, payload) {
+      state.loginUser.wallet = payload;
+    },
   },
   actions: {
-    login({ commit }, { email, password }) {
+    register({ dispatch }, authData) {
       firebase
         .auth()
-        .signInWithEmailAndPassword(email, password)
+        .createUserWithEmailAndPassword(authData.email, authData.password)
         .then((user) => {
-          commit('setUser', user);
-          commit('setIsAuthenticated', true)
+          // walletの初期値（500円）を登録
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.user.uid)
+            .set({
+              wallet: 500,
+            });
+          // 表示名を登録
+          user.user
+            .updateProfile({
+              displayName: authData.displayName,
+            })
+            .then(() => {
+              dispatch('setLoginUser');
+              router.push('/');
+            });
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    },
+    login({ dispatch }, authData) {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(authData.email, authData.password)
+        .then(() => {
+          dispatch('setLoginUser');
           router.push('/');
         })
-        .catch(() => {
-          commit('setUser', null);
-          commit('setIsAuthenticated', false);
+        .catch((error) => {
+          alert(error.message);
         });
+    },
+    setLoginUser({ commit }) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          commit('setLoginUser', { name: user.displayName });
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.uid)
+            .get()
+            .then((doc) => {
+              commit('setWallet', doc.data());
+              });
+        }
+      });
     },
   },
 });
