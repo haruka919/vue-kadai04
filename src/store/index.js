@@ -76,9 +76,20 @@ export default new Vuex.Store({
             .get()
             .then((doc) => {
               commit('setWallet', doc.data());
-              });
+            });
         }
       });
     },
+    logout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          router.push('/login');
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
   },
 });

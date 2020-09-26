@@ -10,7 +10,7 @@
             <div class="field is-grouped">
               <p class="is-size-5">残高：{{ wallet }}</p>
               <p class="control">
-                <a class="button is-primary" href="/logout">ログアウト</a>
+                <button class="button is-link is-outlined" @click="logout">ログアウト</button>
               </p>
             </div>
           </div>
@@ -61,6 +61,11 @@
 import { mapGetters } from 'vuex'
 export default {
   name: 'Register',
-  computed: mapGetters(['displayName', 'wallet'])
+  computed: mapGetters(['displayName', 'wallet']),
+  methods: {
+    logout () {
+      this.$store.dispatch('logout')
+    }
+  }
 }
 </script>
