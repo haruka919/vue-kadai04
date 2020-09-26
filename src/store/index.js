@@ -31,6 +31,15 @@ export default new Vuex.Store({
         .auth()
         .createUserWithEmailAndPassword(authData.email, authData.password)
         .then((user) => {
+          // walletの初期値（500円）を登録
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(user.user.uid)
+            .set({
+              wallet: 500,
+            });
+          // 表示名を登録
           user.user
             .updateProfile({
               displayName: authData.displayName,
@@ -38,13 +47,6 @@ export default new Vuex.Store({
             .then(() => {
               dispatch('setLoginUser');
               router.push('/');
-            });
-          firebase
-            .firestore()
-            .collection('users')
-            .doc(user.user.uid)
-            .set({
-              wallet: 500,
             });
         })
         .catch((error) => {
