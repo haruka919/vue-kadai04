@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import firebase from 'firebase';
-import router from '@/router';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -23,6 +22,10 @@ export default new Vuex.Store({
     },
     setWallet(state, payload) {
       state.loginUser.wallet = payload;
+    },
+    deleteLoginUser(state) {
+      state.loginUser.name = null;
+      state.loginUser.wallet = null;
     },
   },
   actions: {
@@ -46,7 +49,6 @@ export default new Vuex.Store({
             })
             .then(() => {
               dispatch('setLoginUser');
-              router.push('/');
             });
         })
         .catch((error) => {
@@ -59,7 +61,6 @@ export default new Vuex.Store({
         .signInWithEmailAndPassword(authData.email, authData.password)
         .then(() => {
           dispatch('setLoginUser');
-          router.push('/');
         })
         .catch((error) => {
           alert(error.message);
@@ -81,15 +82,10 @@ export default new Vuex.Store({
       });
     },
     logout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          router.push('/login');
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    }
+      firebase.auth().signOut();
+    },
+    deleteLoginUser({ commit }) {
+      commit('deleteLoginUser');
+    },
   },
 });
