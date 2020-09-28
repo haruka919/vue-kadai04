@@ -9,10 +9,13 @@ export default new Vuex.Store({
       displayName: null,
       wallet: null,
     },
+    users: [],
   },
   getters: {
-    displayName: (state) => state.loginUser.displayName ? state.loginUser.displayName : null,
-    wallet: (state) => state.loginUser.wallet ? state.loginUser.wallet : null,
+    displayName: (state) =>
+      state.loginUser.displayName ? state.loginUser.displayName : null,
+    wallet: (state) => (state.loginUser.wallet ? state.loginUser.wallet : null),
+    users: (state) => state.users,
   },
   mutations: {
     setLoginUser(state, payload) {
@@ -23,8 +26,26 @@ export default new Vuex.Store({
       state.loginUser.displayName = null;
       state.loginUser.wallet = null;
     },
+    addUser(state, { id, user }) {
+      user.id = id;
+      state.users.push(user);
+    },
   },
   actions: {
+    fetchUsers({ commit }) {
+      firebase
+        .firestore()
+        .collection('users')
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) =>
+            commit('addUser', {
+              id: doc.id,
+              user: doc.data(),
+            })
+          );
+        });
+    },
     register({ dispatch }, authData) {
       firebase
         .auth()
