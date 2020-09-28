@@ -32,8 +32,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td></td>
+              <tr
+                v-for="user in users"
+                :key=user.id>
+                <td>{{ user.displayName }}</td>
                 <td><button type="button" class="ml-2 button is-small is-primary">walletを見る</button></td>
                 <td><button type="button" class="ml-2 button is-small is-primary">送る</button></td>
               </tr>
@@ -63,7 +65,7 @@
 import { mapGetters } from 'vuex'
 export default {
   name: 'Register',
-  computed: mapGetters(['displayName', 'wallet']),
+  computed: mapGetters(['displayName', 'wallet', 'users']),
   methods: {
     logout () {
       this.$store.dispatch('logout')
