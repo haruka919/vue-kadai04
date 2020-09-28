@@ -3,12 +3,12 @@
     <nav class="navbar is-transparent">
       <div id="navbarExampleTransparentExample" class="navbar-menu">
         <div class="navbar-start">
-          <p class="is-size-5">{{ displayName }}さんようこそ！！</p>
+          <p class="is-size-5">{{ loginUser.displayName }}さんようこそ！！</p>
         </div>
         <div class="navbar-end">
           <div class="navbar-item">
             <div class="field is-grouped">
-              <p class="is-size-5">残高：{{ wallet }}</p>
+              <p class="is-size-5">残高：{{ loginUser.wallet }}</p>
               <p class="control">
                 <button class="button is-link is-outlined" @click="logout">ログアウト</button>
               </p>
@@ -36,21 +36,21 @@
                 v-for="user in users"
                 :key=user.id>
                 <td>{{ user.displayName }}</td>
-                <td><button type="button" class="ml-2 button is-small is-primary">walletを見る</button></td>
+                <td><button type="button" class="ml-2 button is-small is-primary" @click="openWalletModal(user)">walletを見る</button></td>
                 <td><button type="button" class="ml-2 button is-small is-primary">送る</button></td>
               </tr>
             </tbody>
         </table>
 
-        <div class="modal">
+        <div class="modal" :class="{'is-active': isOpen}">
           <div class="modal-background"></div>
           <div class="modal-card mt-6">
             <section class="modal-card-body">
-              <p>あなたの残高</p>
-              <p>2000</p>
+              <p>{{ targetUser.displayName }}さんの残高</p>
+              <p>{{ targetUser.wallet }}</p>
             </section>
             <footer class="modal-card-foot">
-              <button class="button is-danger">close</button>
+              <button class="button is-danger" @click="closeWalletModal">close</button>
             </footer>
           </div>
         </div>
@@ -65,10 +65,29 @@
 import { mapGetters } from 'vuex'
 export default {
   name: 'Register',
-  computed: mapGetters(['displayName', 'wallet', 'users']),
+  computed: mapGetters(['loginUser', 'users']),
+  data () {
+    return {
+      isOpen: false,
+      targetUser: {
+        displayName: '',
+        wallet: ''
+      }
+    }
+  },
   methods: {
     logout () {
       this.$store.dispatch('logout')
+    },
+    openWalletModal (targetUser) {
+      this.isOpen = true,
+      this.targetUser.displayName = targetUser.displayName
+      this.targetUser.wallet = targetUser.wallet
+    },
+    closeWalletModal () {
+      this.isOpen = false
+      this.targetUser.displayName = ''
+      this.targetUser.wallet = ''
     }
   }
 }

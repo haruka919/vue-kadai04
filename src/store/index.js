@@ -12,9 +12,7 @@ export default new Vuex.Store({
     users: [],
   },
   getters: {
-    displayName: (state) =>
-      state.loginUser.displayName ? state.loginUser.displayName : null,
-    wallet: (state) => (state.loginUser.wallet ? state.loginUser.wallet : null),
+    loginUser: (state) => state.loginUser ? state.loginUser : null,
     users: (state) => state.users,
   },
   mutations: {
