@@ -32,9 +32,11 @@
               </tr>
             </thead>
             <tbody>
-              <td></td>
-              <td><button type="button" class="ml-2 button is-small is-primary">walletを見る</button></td>
-              <td><button type="button" class="ml-2 button is-small is-primary">送る</button></td>
+              <tr>
+                <td></td>
+                <td><button type="button" class="ml-2 button is-small is-primary">walletを見る</button></td>
+                <td><button type="button" class="ml-2 button is-small is-primary">送る</button></td>
+              </tr>
             </tbody>
         </table>
 
