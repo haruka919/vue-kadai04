@@ -6,50 +6,59 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     loginUser: {
-      name: null,
+      displayName: null,
       wallet: null,
     },
+    users: [],
   },
   getters: {
-    displayName: (state) =>
-      state.loginUser.name ? state.loginUser.name : null,
-    wallet: (state) =>
-      state.loginUser.wallet ? state.loginUser.wallet.wallet : null,
+    loginUser: (state) => state.loginUser ? state.loginUser : null,
+    users: (state) => state.users,
   },
   mutations: {
     setLoginUser(state, payload) {
-      state.loginUser.name = payload.name;
-    },
-    setWallet(state, payload) {
-      state.loginUser.wallet = payload;
+      state.loginUser.displayName = payload.displayName;
+      state.loginUser.wallet = payload.wallet;
     },
     deleteLoginUser(state) {
-      state.loginUser.name = null;
+      state.loginUser.displayName = null;
       state.loginUser.wallet = null;
+    },
+    addUser(state, { id, user }) {
+      user.id = id;
+      state.users.push(user);
     },
   },
   actions: {
+    fetchUsers({ commit }) {
+      firebase
+        .firestore()
+        .collection('users')
+        .get()
+        .then((snapshot) => {
+          snapshot.forEach((doc) =>
+            commit('addUser', {
+              id: doc.id,
+              user: doc.data(),
+            })
+          );
+        });
+    },
     register({ dispatch }, authData) {
       firebase
         .auth()
         .createUserWithEmailAndPassword(authData.email, authData.password)
         .then((user) => {
-          // walletの初期値（500円）を登録
+          // walletの初期値（500円）と表示名をusersコレクションに登録
           firebase
             .firestore()
             .collection('users')
             .doc(user.user.uid)
             .set({
+              displayName: authData.displayName,
               wallet: 500,
             });
-          // 表示名を登録
-          user.user
-            .updateProfile({
-              displayName: authData.displayName,
-            })
-            .then(() => {
-              dispatch('setLoginUser');
-            });
+          dispatch('setLoginUser');
         })
         .catch((error) => {
           alert(error.message);
@@ -69,14 +78,13 @@ export default new Vuex.Store({
     setLoginUser({ commit }) {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          commit('setLoginUser', { name: user.displayName });
           firebase
             .firestore()
             .collection('users')
             .doc(user.uid)
             .get()
             .then((doc) => {
-              commit('setWallet', doc.data());
+              commit('setLoginUser', doc.data());
             });
         }
       });

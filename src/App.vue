@@ -12,6 +12,7 @@ export default {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.setLoginUser(user)
+        this.fetchUsers()
         this.$router.push({ name: 'Home' }).catch(() => {})
       } else {
         this.deleteLoginUser()
@@ -22,7 +23,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['setLoginUser', 'deleteLoginUser'])
+    ...mapActions(['fetchUsers', 'setLoginUser', 'deleteLoginUser'])
   }
 }
 </script>
