@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     loginUser: {
+      id: null,
       displayName: null,
       wallet: null,
     },
@@ -16,11 +17,13 @@ export default new Vuex.Store({
     users: (state) => state.users,
   },
   mutations: {
-    setLoginUser(state, payload) {
-      state.loginUser.displayName = payload.displayName;
-      state.loginUser.wallet = payload.wallet;
+    setLoginUser(state, data) {
+      state.loginUser.id = data.id;
+      state.loginUser.displayName = data.displayName;
+      state.loginUser.wallet = data.wallet;
     },
     deleteLoginUser(state) {
+      state.loginUser.id = null;
       state.loginUser.displayName = null;
       state.loginUser.wallet = null;
     },
@@ -97,7 +100,11 @@ export default new Vuex.Store({
             .doc(user.uid)
             .get()
             .then((doc) => {
-              commit('setLoginUser', doc.data());
+              commit('setLoginUser', {
+                id: user.uid,
+                displayName: doc.data().displayName,
+                wallet: doc.data().wallet,
+              });
             });
         }
       });
@@ -144,6 +151,7 @@ export default new Vuex.Store({
                 targetUserId,
                 targetUserWallet,
               });
+              commit('setLoginUser', { wallet: loginUserWallet });
             });
         }
       })

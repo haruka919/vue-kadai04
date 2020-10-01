@@ -116,12 +116,16 @@ export default {
       this.targetUser.wallet = ''
     },
     sendMoney () {
-      const loginUserWallet = Number(this.loginUser.wallet) - Number(this.money)
-      const targetUserWallet = Number(this.targetUser.wallet) + Number(this.money)
-      this.$store.dispatch('sendMoney', { loginUserWallet, targetUserId: this.targetUser.id, targetUserWallet })
-      .then(() => {
-        this.closeSendModal();
-      })
+      if (this.targetUser.id !== this.loginUser.id) {
+        const loginUserWallet = Number(this.loginUser.wallet) - Number(this.money)
+        const targetUserWallet = Number(this.targetUser.wallet) + Number(this.money)
+        this.$store.dispatch('sendMoney', { loginUserWallet, targetUserId: this.targetUser.id, targetUserWallet })
+        .then(() => {
+          this.closeSendModal();
+        })
+      } else {
+        alert('自分自身には送金できません')
+      }
     }
 
   }
