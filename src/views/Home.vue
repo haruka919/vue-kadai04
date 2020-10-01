@@ -60,10 +60,10 @@
           <div class="modal-card mt-6">
             <section class="modal-card-body">
               <p>あなたの残高：{{ loginUser.wallet }}<br>送る金額</p>
-              <input class="input" type="number">
+              <input class="input" type="number" v-model="money">
             </section>
             <footer class="modal-card-foot">
-              <button class="button is-danger">送信</button>
+              <button class="button is-danger" @click="sendMoney()">送信</button>
             </footer>
           </div>
         </div>
@@ -84,9 +84,11 @@ export default {
       isOpenWalletModal: false,
       isOpenSendModal: false,
       targetUser: {
+        id: '',
         displayName: '',
-        wallet: ''
-      }
+        wallet: '',
+      },
+      money: ''
     }
   },
   methods: {
@@ -105,13 +107,21 @@ export default {
     },
     openSendModal (targetUser) {
       this.isOpenSendModal = true,
-      this.targetUser.displayName = targetUser.displayName
+      this.targetUser.id = targetUser.id
       this.targetUser.wallet = targetUser.wallet
     },
     closeSendModal () {
       this.isOpenSendModal = false
-      this.targetUser.displayName = ''
+      this.targetUser.id = ''
       this.targetUser.wallet = ''
+    },
+    sendMoney () {
+      const loginUserWallet = Number(this.loginUser.wallet) - Number(this.money)
+      const targetUserWallet = Number(this.targetUser.wallet) + Number(this.money)
+      this.$store.dispatch('sendMoney', { loginUserWallet, targetUserId: this.targetUser.id, targetUserWallet })
+      .then(() => {
+        this.closeSendModal();
+      })
     }
 
   }

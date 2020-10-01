@@ -28,6 +28,19 @@ export default new Vuex.Store({
       user.id = id;
       state.users.push(user);
     },
+    setWallet(state, data) {
+      console.log(data);
+      state.users.forEach((user) => {
+        if (user.id === data.targetUserId) {
+          console.log(user);
+          user.wallet = data.targetUserWallet;
+        }
+        if (user.id === data.loginUserId) {
+          console.log(user);
+          user.wallet = data.loginUserWallet;
+        }
+      });
+    },
   },
   actions: {
     fetchUsers({ commit }) {
@@ -94,6 +107,46 @@ export default new Vuex.Store({
     },
     deleteLoginUser({ commit }) {
       commit('deleteLoginUser');
+    },
+    sendMoney({ commit }, { loginUserWallet, targetUserId, targetUserWallet }) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          const loginUserRef = firebase
+            .firestore()
+            .collection('users')
+            .doc(user.uid);
+          const targetUserRef = firebase
+            .firestore()
+            .collection('users')
+            .doc(targetUserId);
+
+          // トランザクション開始
+          firebase
+            .firestore()
+            .runTransaction(async (transaction) => {
+              await Promise.all([
+                transaction.get(loginUserRef),
+                transaction.get(targetUserRef),
+              ]);
+              await Promise.all([
+                transaction.update(loginUserRef, {
+                  wallet: loginUserWallet,
+                }),
+                transaction.update(targetUserRef, {
+                  wallet: targetUserWallet,
+                }),
+              ]);
+            }) // トランザクション完了
+            .then(() => {
+              commit('setWallet', {
+                loginUserId: user.uid,
+                loginUserWallet,
+                targetUserId,
+                targetUserWallet,
+              });
+            });
+        }
+      })
     },
   },
 });
