@@ -114,43 +114,44 @@ export default new Vuex.Store({
     },
     sendMoney({ commit }, { loginUserWallet, targetUserId, targetUserWallet }) {
       firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          const loginUserRef = firebase
-            .firestore()
-            .collection('users')
-            .doc(user.uid);
-          const targetUserRef = firebase
-            .firestore()
-            .collection('users')
-            .doc(targetUserId);
-
-          // トランザクション開始
-          firebase
-            .firestore()
-            .runTransaction(async (transaction) => {
-              await Promise.all([
-                transaction.get(loginUserRef),
-                transaction.get(targetUserRef),
-              ]);
-              await Promise.all([
-                transaction.update(loginUserRef, {
-                  wallet: loginUserWallet,
-                }),
-                transaction.update(targetUserRef, {
-                  wallet: targetUserWallet,
-                }),
-              ]);
-            }) // トランザクション完了
-            .then(() => {
-              commit('setWallet', {
-                loginUserId: user.uid,
-                loginUserWallet,
-                targetUserId,
-                targetUserWallet,
-              });
-              commit('setLoginUser', { wallet: loginUserWallet });
-            });
+        if (!user) {
+          return false
         }
+        const loginUserRef = firebase
+          .firestore()
+          .collection('users')
+          .doc(user.uid);
+        const targetUserRef = firebase
+          .firestore()
+          .collection('users')
+          .doc(targetUserId);
+
+        // トランザクション開始
+        firebase
+          .firestore()
+          .runTransaction(async (transaction) => {
+            await Promise.all([
+              transaction.get(loginUserRef),
+              transaction.get(targetUserRef),
+            ]);
+            await Promise.all([
+              transaction.update(loginUserRef, {
+                wallet: loginUserWallet,
+              }),
+              transaction.update(targetUserRef, {
+                wallet: targetUserWallet,
+              }),
+            ]);
+          }) // トランザクション完了
+          .then(() => {
+            commit('setWallet', {
+              loginUserId: user.uid,
+              loginUserWallet,
+              targetUserId,
+              targetUserWallet,
+            });
+            commit('setLoginUser', { wallet: loginUserWallet });
+          });
       })
     },
   },
