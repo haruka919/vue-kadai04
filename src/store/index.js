@@ -32,14 +32,11 @@ export default new Vuex.Store({
       state.users.push(user);
     },
     setWallet(state, data) {
-      console.log(data);
       state.users.forEach((user) => {
         if (user.id === data.targetUserId) {
-          console.log(user);
           user.wallet = data.targetUserWallet;
         }
         if (user.id === data.loginUserId) {
-          console.log(user);
           user.wallet = data.loginUserWallet;
         }
       });
