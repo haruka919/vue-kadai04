@@ -18,9 +18,7 @@ export default new Vuex.Store({
   },
   mutations: {
     setLoginUser(state, data) {
-      state.loginUser.id = data.id;
-      state.loginUser.displayName = data.displayName;
-      state.loginUser.wallet = data.wallet;
+      state.loginUser = { ...state.loginUser, ...data}
     },
     deleteLoginUser(state) {
       state.loginUser.id = null;
