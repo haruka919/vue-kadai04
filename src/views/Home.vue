@@ -37,13 +37,13 @@
                 :key=user.id>
                 <td>{{ user.displayName }}</td>
                 <td><button type="button" class="ml-2 button is-small is-primary" @click="openWalletModal(user)">walletを見る</button></td>
-                <td><button type="button" class="ml-2 button is-small is-primary">送る</button></td>
+                <td><button type="button" class="ml-2 button is-small is-primary" @click="openSendModal(user)">送る</button></td>
               </tr>
             </tbody>
         </table>
 
-        <div class="modal" :class="{'is-active': isOpen}">
-          <div class="modal-background"></div>
+        <div class="modal" :class="{'is-active': isOpenWalletModal}">
+          <div class="modal-background" @click="closeWalletModal"></div>
           <div class="modal-card mt-6">
             <section class="modal-card-body">
               <p>{{ targetUser.displayName }}さんの残高</p>
@@ -51,6 +51,19 @@
             </section>
             <footer class="modal-card-foot">
               <button class="button is-danger" @click="closeWalletModal">close</button>
+            </footer>
+          </div>
+        </div>
+
+        <div class="modal" :class="{'is-active': isOpenSendModal}">
+          <div class="modal-background" @click="closeSendModal"></div>
+          <div class="modal-card mt-6">
+            <section class="modal-card-body">
+              <p>あなたの残高：{{ loginUser.wallet }}<br>送る金額</p>
+              <input class="input" type="number" v-model="money">
+            </section>
+            <footer class="modal-card-foot">
+              <button class="button is-danger" @click="sendMoney()">送信</button>
             </footer>
           </div>
         </div>
@@ -68,11 +81,14 @@ export default {
   computed: mapGetters(['loginUser', 'users']),
   data () {
     return {
-      isOpen: false,
+      isOpenWalletModal: false,
+      isOpenSendModal: false,
       targetUser: {
+        id: '',
         displayName: '',
-        wallet: ''
-      }
+        wallet: '',
+      },
+      money: ''
     }
   },
   methods: {
@@ -80,15 +96,47 @@ export default {
       this.$store.dispatch('logout')
     },
     openWalletModal (targetUser) {
-      this.isOpen = true,
+      this.isOpenWalletModal = true,
       this.targetUser.displayName = targetUser.displayName
       this.targetUser.wallet = targetUser.wallet
     },
     closeWalletModal () {
-      this.isOpen = false
+      this.isOpenWalletModal = false
       this.targetUser.displayName = ''
       this.targetUser.wallet = ''
+    },
+    openSendModal (targetUser) {
+      this.isOpenSendModal = true,
+      this.targetUser.id = targetUser.id
+      this.targetUser.wallet = targetUser.wallet
+    },
+    closeSendModal () {
+      this.isOpenSendModal = false
+      this.targetUser.id = ''
+      this.targetUser.wallet = ''
+    },
+    sendMoney () {
+      if (this.targetUser.id !== this.loginUser.id) {
+        const loginUserWallet = Number(this.loginUser.wallet) - Number(this.money)
+        const targetUserWallet = Number(this.targetUser.wallet) + Number(this.money)
+        this.$store.dispatch('sendMoney', { loginUserWallet, targetUserId: this.targetUser.id, targetUserWallet })
+        .then(() => {
+          this.closeSendModal();
+        })
+      } else {
+        alert('自分自身には送金できません')
+      }
     }
+
   }
 }
 </script>
+<style scoped>
+.modal-card-body {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.modal-card-foot {
+  justify-content: flex-end;
+}
+</style>
